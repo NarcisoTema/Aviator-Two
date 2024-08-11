@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviator Bot com Análise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            margin-top: 20px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        p {
+            font-size: 18px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Aviator Bot com Análise</h1>
+    <p id="prediction">Clique no botão para iniciar a análise e tentar prever a queda do avião.</p>
+    <button onclick="startAnalysis()">Iniciar Análise</button>
+    <iframe src="https://www.elephantbet.co.ao/aviator/" id="aviatorIframe"></iframe>
+    <p id="notification"></p>
+</div>
+
+<script>
+    // Array para armazenar multiplicadores das rodadas anteriores
+    let previousMultipliers = [];
+
+    // Função para coletar dados do Aviator do site
+    function collectAviatorData() {
+        const iframe = document.getElementById('aviatorIframe');
+        try {
+            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            const multiplierElement = iframeDocument.querySelector('.multiplier-value'); 
+            if (multiplierElement) {
+                const multiplier = parseFloat(multiplierElement.innerText);
+                console.log(`Multiplicador Atual: ${multiplier}`);
+                return multiplier;
+            } else {
+                console.log("Elemento do multiplicador não encontrado.");
+                return null;
+            }
+        } catch (error) {
+            console.log("Erro ao tentar acessar o conteúdo do iframe: ", error);
+            return null;
+        }
+    }
+
+    // Função de Análise Simples
+    function analyzeData() {
+        if (previousMultipliers.length < 5) {
+            return "Coletando mais dados...";
+        }
+        
+        const sum = previousMultipliers.reduce((a, b) => a + b, 0);
+        const avg = sum / previousMultipliers.length;
+        
+        let prediction;
+        if (avg < 2) {
+            prediction = "Alta probabilidade de o avião cair abaixo de 2x.";
+        } else if (avg >= 2 && avg <= 5) {
+            prediction = "O avião pode alcançar entre 2x e 5x.";
+        } else {
+            prediction = "O avião tem uma boa chance de passar de 5x!";
+        }
+        
+        return prediction;
+    }
+
+    // Função para iniciar a coleta de dados e análise
+    function startAnalysis() {
+        const multiplier = collectAviatorData();
+        
+        if (multiplier) {
+            previousMultipliers.push(multiplier);
+            if (previousMultipliers.length > 10) {
+                previousMultipliers.shift(); // Mantém um histórico de 10 rodadas
+            }
+        }
+
+        const prediction = analyzeData();
+        document.getElementById("prediction").innerText = `Previsão: ${prediction}`;
+    }
+
+    // Coleta de dados a cada 5 segundos
+    setInterval(() => {
+        startAnalysis();
+    }, 5000);
+
+</script>
+
+</body>
+</html>
